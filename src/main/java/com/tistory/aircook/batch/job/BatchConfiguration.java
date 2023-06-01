@@ -3,6 +3,7 @@ package com.tistory.aircook.batch.job;
 import com.tistory.aircook.batch.domain.Person;
 import com.tistory.aircook.batch.listener.JobCompletionNotificationListener;
 import com.tistory.aircook.batch.processor.PersonItemProcessor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -25,8 +26,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
+@Slf4j
 public class BatchConfiguration {
-	private static final Logger log = LoggerFactory.getLogger(BatchConfiguration.class);
+
 	// tag::readerwriterprocessor[]
 	@Bean
 	public FlatFileItemReader<Person> reader() {

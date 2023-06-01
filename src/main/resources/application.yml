@@ -2,3 +2,6 @@ spring:
   batch:
     job:
       enabled: true
+logging:
+  level:
+    com.tistory.aircook.batch: debug
