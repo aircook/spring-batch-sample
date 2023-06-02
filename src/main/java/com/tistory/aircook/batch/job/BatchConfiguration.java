@@ -77,7 +77,7 @@ public class BatchConfiguration {
 		return new JobBuilder("importUserJob", jobRepository)
 			.incrementer(new RunIdIncrementer())
 			.listener(listener)
-			.flow(step1)
+			.flow(step1) // Job: [FlowJob: [name=importUserJob]] launched with the following parameters: [{'run.id':'{value=1, type=class java.lang.Long, identifying=true}'}]
 			.end()
 			//	.start(step1) // Job: [SimpleJob: [name=importUserJob]] launched with the following parameters: [{'run.id':'{value=1, type=class java.lang.Long, identifying=true}'}]
 				.build();
