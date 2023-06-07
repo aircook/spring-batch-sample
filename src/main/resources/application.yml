@@ -1,7 +1,16 @@
 spring:
   batch:
     job:
-      enabled: true
+      enabled: true # spring batch 자동실행 방지, false를 설정하면 JobLauncher로 직접 실행해야 된다.
+      name: ${job.name:NONE} # --job.name=myBatisJob, job bean의 이름
 logging:
   level:
     com.tistory.aircook.batch: debug
+    org.apache.ibatis: debug
+    org.hsqldb: debug
+    com.zaxxer.hikari: debug
+mybatis:
+  mapper-locations: mapper/**/*.xml #mapper.xml 위치 지정
+  #type-aliases-package: com.tistory.aircook.batch.domain #패키지 명을 생략할 수 있도록 alias 설정
+  configuration:
+    map-underscore-to-camel-case: true

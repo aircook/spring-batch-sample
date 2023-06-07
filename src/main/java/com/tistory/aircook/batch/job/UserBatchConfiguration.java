@@ -1,11 +1,9 @@
 package com.tistory.aircook.batch.job;
 
 import com.tistory.aircook.batch.domain.Person;
-import com.tistory.aircook.batch.listener.JobCompletionNotificationListener;
+import com.tistory.aircook.batch.listener.UserJobCompletionNotificationListener;
 import com.tistory.aircook.batch.processor.PersonItemProcessor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -25,18 +23,19 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
+/**
+ * spring batcch 5.0.2을 사용
+ */
 @Configuration
 @Slf4j
-public class BatchConfiguration {
+public class UserBatchConfiguration {
 
 	// tag::readerwriterprocessor[]
 	@Bean
-	public FlatFileItemReader<Person> reader() {
-
-		log.info("reader 빈으로 선언했음..");
-
+	public FlatFileItemReader<Person> userFileReader() {
+		log.info("Declare userFileReader bean.");
 		return new FlatFileItemReaderBuilder<Person>()
-			.name("personItemReader")
+			.name("userFileReader")
 			.resource(new ClassPathResource("sample-data.csv"))
 			.delimited()
 			.names(new String[]{"firstName", "lastName"})
@@ -47,18 +46,14 @@ public class BatchConfiguration {
 	}
 
 	@Bean
-	public PersonItemProcessor processor() {
-
-		log.info("processor 빈으로 선언했음..");
-
+	public PersonItemProcessor userProcessor() {
+		log.info("Declare processor bean.");
 		return new PersonItemProcessor();
 	}
 
 	@Bean
-	public JdbcBatchItemWriter<Person> writer(DataSource dataSource) {
-
-		log.info("writer 빈으로 선언했음..");
-
+	public JdbcBatchItemWriter<Person> userJdbcWriter(DataSource dataSource) {
+		log.info("Declare userJdbcWriter bean.");
 		return new JdbcBatchItemWriterBuilder<Person>()
 			.itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
 			.sql("INSERT INTO people (first_name, last_name) VALUES (:firstName, :lastName)")
@@ -69,31 +64,27 @@ public class BatchConfiguration {
 
 	// tag::jobstep[]
 	@Bean
-	public Job importUserJob(JobRepository jobRepository,
-							 JobCompletionNotificationListener listener, Step step1) {
-
-		log.info("job 을 빈으로 선언했음..");
-
-		return new JobBuilder("importUserJob", jobRepository)
+	public Job userJob(JobRepository jobRepository,
+					   UserJobCompletionNotificationListener listener, Step userStep) {
+		log.info("Declare userJob bean.");
+		return new JobBuilder("userJob", jobRepository)
 			.incrementer(new RunIdIncrementer())
 			.listener(listener)
-			.flow(step1) // Job: [FlowJob: [name=importUserJob]] launched with the following parameters: [{'run.id':'{value=1, type=class java.lang.Long, identifying=true}'}]
-			.end()
-			//	.start(step1) // Job: [SimpleJob: [name=importUserJob]] launched with the following parameters: [{'run.id':'{value=1, type=class java.lang.Long, identifying=true}'}]
-				.build();
+			//.flow(step1) // Job: [FlowJob: [name=importUserJob]] launched with the following parameters: [{'run.id':'{value=1, type=class java.lang.Long, identifying=true}'}]
+			//.end()
+			.start(userStep) // Job: [SimpleJob: [name=importUserJob]] launched with the following parameters: [{'run.id':'{value=1, type=class java.lang.Long, identifying=true}'}]
+			.build();
 	}
 
 	@Bean
-	public Step step1(JobRepository jobRepository,
-			PlatformTransactionManager transactionManager, JdbcBatchItemWriter<Person> writer) {
-
-		log.info("step1 을 빈으로 선언했음..");
-		
-		return new StepBuilder("step1", jobRepository)
+	public Step userStep(JobRepository jobRepository,
+			PlatformTransactionManager transactionManager, JdbcBatchItemWriter<Person> userJdbcWriter) {
+		log.info("Declare userStep bean.");
+		return new StepBuilder("userStep", jobRepository)
 			.<Person, Person> chunk(10, transactionManager)
-			.reader(reader())
-			.processor(processor())
-			.writer(writer)
+			.reader(userFileReader())
+			.processor(userProcessor())
+			.writer(userJdbcWriter)
 			.build();
 	}
 	// end::jobstep[]

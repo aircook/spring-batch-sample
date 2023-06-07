@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tistory.aircook.batch.repository.PeopleMapper">
+
+    <select id="selectPeople" resultType="com.tistory.aircook.batch.domain.Person">
+        SELECT FIRST_NAME, LAST_NAME
+        FROM PEOPLE
+    </select>
+
+    <select id="selectPagingPeople" resultType="com.tistory.aircook.batch.domain.Person">
+        SELECT FIRST_NAME, LAST_NAME
+        FROM PEOPLE
+        ORDER BY PERSON_ID
+        LIMIT #{_skiprows}, #{_pagesize}
+    </select>
+
+    <select id="selectPeopleConverted" resultType="com.tistory.aircook.batch.domain.Person">
+        SELECT FIRST_NAME, LAST_NAME
+        FROM PEOPLE_CONVERTED
+    </select>
+
+    <insert id="insertPeopleConverted">
+        INSERT INTO PEOPLE_CONVERTED (FIRST_NAME,
+                                      LAST_NAME)
+        VALUES (#{firstName},
+                #{lastName})
+    </insert>
+
+</mapper>
